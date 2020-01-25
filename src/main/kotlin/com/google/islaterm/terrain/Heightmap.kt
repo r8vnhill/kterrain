@@ -1,4 +1,4 @@
-package terrain
+package com.google.islaterm.terrain
 
 import org.joml.Vector3f
 import java.util.*
@@ -51,7 +51,7 @@ class Heightmap(detail: Int) {
     }
 
     fun create() {
-        println("Generating random terrain...")
+        println("Generating random com.google.islaterm.terrain...")
         println("Heightmap dimensions: $size x $size (${size * size} vertices).")
         // Sets initial corner values
         map[0][0] = r.nextFloat()

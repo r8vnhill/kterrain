@@ -1,4 +1,4 @@
-package terrain
+package com.google.islaterm.terrain
 
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20.*

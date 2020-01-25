@@ -1,4 +1,4 @@
-package terrain
+package com.google.islaterm.terrain
 
 import org.joml.Math.toRadians
 import org.joml.Matrix4f
@@ -16,17 +16,17 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-class TerrainRenderer(private val detail: Int = 5) {
+class KTerrain(private val detail: Int = 5) {
     // Window parameter definitions
     /** GLFW window.    */
-    private var window: Long = 0
+    private var window = 0L
     /** GLFW window width.   */
     private var height = 768
     /** GLFW window heigth. */
     private var width = 1024
 
     /** Debug callback. */
-    private var debugProc: Callback? = null
+    private lateinit var debugProc: Callback
 
     /** Vertex array object id. */
     private var vaoId: Int = 0
@@ -111,16 +111,16 @@ class TerrainRenderer(private val detail: Int = 5) {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
 
         // Create the window
-        window = glfwCreateWindow(width, height, "terrain.TerrainRenderer", NULL, NULL)
+        window = glfwCreateWindow(width, height, "com.google.islaterm.terrain.TerrainRenderer", NULL, NULL)
         if (window == NULL) throw RuntimeException("Failed to create the GLFW window")
 
         System.out.println("")
 
         glfwSetFramebufferSizeCallback(window) { _, width, height ->
             if (width > 0 && height > 0
-                    && (this@TerrainRenderer.width != width || this@TerrainRenderer.height != height)) {
-                this@TerrainRenderer.width = width
-                this@TerrainRenderer.height = height
+                    && (this@KTerrain.width != width || this@KTerrain.height != height)) {
+                this@KTerrain.width = width
+                this@KTerrain.height = height
             }
         }
 
@@ -291,7 +291,7 @@ class TerrainRenderer(private val detail: Int = 5) {
         lightPos.set(0f, 5f, 0f)
     }
 
-    /** Draws the terrain.  */
+    /** Draws the com.google.islaterm.terrain.  */
     private fun render() {
         // Starts using the shader program
         shader.use()
@@ -340,5 +340,5 @@ class TerrainRenderer(private val detail: Int = 5) {
 }
 
 fun main(args: Array<String>) {
-    TerrainRenderer(8).run()
+    KTerrain(10).run()
 }
