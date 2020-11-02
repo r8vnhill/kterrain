@@ -1,4 +1,4 @@
-package com.google.islaterm.terrain
+package cl.ravenhill.kterrain.utils
 
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20.*

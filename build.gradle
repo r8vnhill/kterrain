@@ -6,8 +6,6 @@ plugins {
 group 'com.github.islaterm'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
-
 repositories {
     mavenCentral()
 }
@@ -15,13 +13,6 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 import org.gradle.internal.os.OperatingSystem
@@ -104,6 +95,7 @@ dependencies {
     compile "org.lwjgl:lwjgl-xxhash:$lwjglVersion:$lwjglNatives"
     compile "org.lwjgl:lwjgl-yoga:$lwjglVersion:$lwjglNatives"
     compile "org.lwjgl:lwjgl-zstd:$lwjglVersion:$lwjglNatives"
+    compile group: 'io.github.microutils', name: 'kotlin-logging', version: '2.0.3', ext: 'pom'
 }
 
 repositories {
