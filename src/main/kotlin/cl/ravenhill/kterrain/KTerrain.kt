@@ -22,7 +22,6 @@ import kotlin.math.sin
 class KTerrain(private val detail: Int = 5) {
   private lateinit var debugProc: Callback // Debug callback
   private val shape = Shape()
-  private val controller: Controller
 
   private lateinit var shader: Shader
   private var window: WindowGLFW
@@ -31,100 +30,17 @@ class KTerrain(private val detail: Int = 5) {
     initGLFW()
     window = WindowGLFW()
     window.id = glfwCreateWindow(window.width, window.height, "cl.ravenhill.KTerrain", NULL, NULL)
-    controller = Controller(window)
   }
 
   fun run() {
+    Controller.start(window)
     init()
     loop()
-    terminate()
-  }
-
-  /**
-   * Frees the resources used by the application.
-   */
-  private fun terminate() {
-    // Free the window callbacks and destroy the window
-    glfwFreeCallbacks(window.id)
-    glfwDestroyWindow(window.id)
-    // Terminate GLFW and free the error callback
-    glfwTerminate()
-    glfwSetErrorCallback(null)?.free()
+    Controller.terminate()
   }
 
   /** Sets up initial configuration.  */
   private fun init() {
-    glfwSetFramebufferSizeCallback(window.id) { _, width, height ->
-      if (width > 0 && height > 0
-        && (window.width != width || window.height != height)
-      ) {
-        window.width = width
-        window.height = height
-      }
-    }
-
-    // Setup key callback. It will be called every time GeometryShaderTest20 key is pressed, repeated
-    // or released.
-    controller.setupKeyCallbacks()
-
-    // Captures and hides the cursor
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-    // Set up cursor position callback,
-    glfwSetCursorPosCallback(window) { _, xpos, ypos ->
-      var xoffset = xpos - lastX
-      var yoffset = ypos - lastY
-      lastX = xpos.toFloat()
-      lastY = ypos.toFloat()
-
-      val sensitivity = 0.05f
-      xoffset *= sensitivity
-      yoffset *= sensitivity
-
-      yaw += xoffset
-      pitch += yoffset
-
-      if (pitch > 89.0)
-        pitch = 89.0
-      if (pitch < -89.0)
-        pitch = -89.0
-
-      val front = Vector3f(
-        (cos(toRadians(pitch)) * cos(toRadians(yaw))).toFloat(),
-        -sin(toRadians(pitch)).toFloat(),
-        (cos(toRadians(pitch)) * sin(toRadians(yaw))).toFloat()
-      )
-      front.normalize()
-      cameraFront.set(front)
-    }
-
-    // Set up mouse wheel callback
-    glfwSetScrollCallback(window) { _, _, yoffset ->
-      when {
-        fov in 1f..45f -> fov -= yoffset.toFloat()
-        fov <= 1f -> fov = 1f
-        else -> fov = 45f
-      }
-    }
-
-    // Get the thread stack and push GeometryShaderTest20 new frame
-    stackPush().use { stack ->
-      val pWidth = stack.mallocInt(1) // int*
-      val pHeight = stack.mallocInt(1) // int*
-      // Get the window size passed to glfwCreateWindow
-      glfwGetWindowSize(window, pWidth, pHeight)
-
-      // Get the resolution of the primary monitor
-      val vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor())
-
-      width = pWidth.get(0)
-      height = pHeight.get(0)
-
-      // Center the window
-      glfwSetWindowPos(
-        window, (vidmode!!.width() - width) / 2,
-        (vidmode.height() - height) / 2
-      )
-    } // the stack frame is popped automatically
 
     // Make the OpenGL context current
     glfwMakeContextCurrent(window)
