@@ -2,14 +2,12 @@ package cl.ravenhill.kterrain.utils
 
 import org.lwjgl.glfw.GLFW
 
-object: KLogging()
 /**
  * Initializes GLFW and configures it.
  */
 fun initGLFW() {
   // Initialize GLFW. Most GLFW functions will not work before doing this.
   if (!GLFW.glfwInit()) {
-
     throw IllegalStateException("Unable to initialize GLFW")
   }
 

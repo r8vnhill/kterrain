@@ -54,9 +54,6 @@ class KTerrain(private val detail: Int = 5) {
 
   /** Sets up initial configuration.  */
   private fun init() {
-
-    println()
-
     glfwSetFramebufferSizeCallback(window.id) { _, width, height ->
       if (width > 0 && height > 0
         && (window.width != width || window.height != height)
@@ -68,38 +65,7 @@ class KTerrain(private val detail: Int = 5) {
 
     // Setup key callback. It will be called every time GeometryShaderTest20 key is pressed, repeated
     // or released.
-    glfwSetKeyCallback(window) { window, key, _, _, _ ->
-      val cameraSpeed = 20f * deltaTime
-      when (key) {
-        GLFW_KEY_ESCAPE -> glfwSetWindowShouldClose(window, true)
-        GLFW_KEY_W -> {
-          cameraPos.x += cameraSpeed * cameraFront.x
-          cameraPos.y += cameraSpeed * cameraFront.y
-          cameraPos.z += cameraSpeed * cameraFront.z
-        }
-        GLFW_KEY_S -> {
-          cameraPos.x -= cameraSpeed * cameraFront.x
-          cameraPos.y -= cameraSpeed * cameraFront.y
-          cameraPos.z -= cameraSpeed * cameraFront.z
-        }
-        GLFW_KEY_A -> {
-          val auxVec = Vector3f()
-          cameraFront.cross(cameraUp, auxVec)
-          auxVec.normalize()
-          cameraPos.x -= cameraSpeed * auxVec.x
-          cameraPos.y -= cameraSpeed * auxVec.y
-          cameraPos.z -= cameraSpeed * auxVec.z
-        }
-        GLFW_KEY_D -> {
-          val auxVec = Vector3f()
-          cameraFront.cross(cameraUp, auxVec)
-          auxVec.normalize()
-          cameraPos.x += cameraSpeed * auxVec.x
-          cameraPos.y += cameraSpeed * auxVec.y
-          cameraPos.z += cameraSpeed * auxVec.z
-        }
-      }
-    }
+    controller.setupKeyCallbacks()
 
     // Captures and hides the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
