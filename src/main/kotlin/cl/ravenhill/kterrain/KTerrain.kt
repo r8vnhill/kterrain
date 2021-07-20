@@ -1,4 +1,4 @@
-package com.google.islaterm.terrain
+package cl.ravenhill.kterrain
 
 import org.joml.Math.toRadians
 import org.joml.Matrix4f
@@ -93,25 +93,8 @@ class KTerrain(private val detail: Int = 5) {
                 delegate.free()
             }
         })
+        window = GLFWController.createWindow("KTR", width, height)
 
-        // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if (!glfwInit()) throw IllegalStateException("Unable to initialize GLFW")
-
-        // Configure GLFW
-        // optional, the current window hints are already the default
-        glfwDefaultWindowHints()
-        // Require version 3.3
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3)
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
-        // the window will stay hidden after creation
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
-        // the window will be resizable
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
-
-        // Create the window
-        window = glfwCreateWindow(width, height, "com.google.islaterm.terrain.TerrainRenderer", NULL, NULL)
         if (window == NULL) throw RuntimeException("Failed to create the GLFW window")
 
         System.out.println("")
@@ -223,7 +206,7 @@ class KTerrain(private val detail: Int = 5) {
         glfwShowWindow(window)
 
         GL.createCapabilities()
-        debugProc = GLUtil.setupDebugMessageCallback()
+        debugProc = GLUtil.setupDebugMessageCallback()!!
 
         GL11.glClearColor(0.55f, 0.75f, 0.95f, 1.0f)
         GL11.glEnable(GL11.GL_DEPTH_TEST)
@@ -340,5 +323,5 @@ class KTerrain(private val detail: Int = 5) {
 }
 
 fun main(args: Array<String>) {
-    KTerrain(10).run()
+    KTerrain(5).run()
 }

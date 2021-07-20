@@ -1,4 +1,4 @@
-package com.google.islaterm.terrain
+package cl.ravenhill.kterrain
 
 import org.joml.Vector3f
 import java.util.*
