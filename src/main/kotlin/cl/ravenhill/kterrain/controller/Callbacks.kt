@@ -11,6 +11,7 @@ import cl.ravenhill.kterrain.view.Window
 import org.joml.Math
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.glfw.GLFWErrorCallback
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -18,7 +19,7 @@ internal fun bindKeyCallback(window: Window, camera: Camera) {
   // Setup key callback. It will be called every time GeometryShaderTest20 key is pressed, repeated
   // or released.
   glfwSetKeyCallback(window.id) { win, key, _, _, _ ->
-    val cameraSpeed = 100f * GLFWController.updateRate
+    val cameraSpeed = 160f * GLFWController.updateRate
     when (key) {
       GLFW_KEY_ESCAPE -> glfwSetWindowShouldClose(win, true)
       GLFW_KEY_W -> {
@@ -81,4 +82,31 @@ internal fun bindCursorPosCallback(window: Window, camera: Camera) {
     front.normalize()
     camera.front.set(front)
   }
+}
+
+internal fun bindMouseWheelCallback(window: Window, camera: Camera) {
+  // Set up mouse wheel callback
+  glfwSetScrollCallback(window.id) { _, _, yoffset ->
+    when {
+      camera.fov in 1f..45f -> camera.fov -= yoffset.toFloat()
+      camera.fov <= 1f -> camera.fov = 1f
+      else -> camera.fov = 45f
+    }
+  }
+}
+
+internal fun createErrorCallback() {
+  glfwSetErrorCallback(object : GLFWErrorCallback() {
+    private val delegate = createPrint(System.err)
+
+    override fun invoke(error: Int, description: Long) {
+      if (error == GLFW_VERSION_UNAVAILABLE)
+        System.err.println("This demo requires OpenGL 3.0 or higher.")
+      delegate.invoke(error, description)
+    }
+
+    override fun free() {
+      delegate.free()
+    }
+  })
 }

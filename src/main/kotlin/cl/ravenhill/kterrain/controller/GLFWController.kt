@@ -1,20 +1,44 @@
 package cl.ravenhill.kterrain.controller
 
+import cl.ravenhill.kterrain.Heightmap
+import cl.ravenhill.kterrain.Shader
+import cl.ravenhill.kterrain.opengl.BufferUtils
 import cl.ravenhill.kterrain.view.Window
+import org.joml.Math.*
+import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.opengl.GL
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL30
+import org.lwjgl.opengl.GLUtil
+import org.lwjgl.system.Callback
 import org.lwjgl.system.MemoryStack
 
 /**
  * @author <a href=mailto:ignacio.slater@ug.uchile.cl>Ignacio Slater Muñoz</a>
  */
 object GLFWController {
+  private var vaoId: Int = 0
   lateinit var camera: Camera
     private set
   lateinit var window: Window
     private set
+  private lateinit var heightmap: Heightmap
+
+  /** Time of last frame. */
+  private var lastFrame = 0f
+
+  /** Shader program. */
+  private lateinit var shader: Shader
+
   /** Time between current and last frame.    */
   internal var updateRate = 0f
+
+  /** Light position vector */
+  private val lightPos = Vector3f()
+
+  /** Debug callback. */
+  private lateinit var debugProc: Callback
 
   init {
     // Setup an error callback.
@@ -38,23 +62,8 @@ object GLFWController {
     camera = Camera()
     bindKeyCallback(window, camera)
     bindCursorPosCallback(window, camera)
+    bindMouseWheelCallback(window, camera)
     pushFrame()
-  }
-
-  private fun createErrorCallback() {
-    GLFW.glfwSetErrorCallback(object : GLFWErrorCallback() {
-      private val delegate = createPrint(System.err)
-
-      override fun invoke(error: Int, description: Long) {
-        if (error == GLFW.GLFW_VERSION_UNAVAILABLE)
-          System.err.println("This demo requires OpenGL 3.0 or higher.")
-        delegate.invoke(error, description)
-      }
-
-      override fun free() {
-        delegate.free()
-      }
-    })
   }
 
   private fun pushFrame() {
@@ -79,6 +88,75 @@ object GLFWController {
       )
     } // the stack frame is popped automatically
   }
+
+  fun enableOpenGL() {
+    GL.createCapabilities()
+    debugProc = GLUtil.setupDebugMessageCallback()!!
+
+    GL11.glClearColor(0.55f, 0.75f, 0.95f, 1.0f)
+    GL11.glEnable(GL11.GL_DEPTH_TEST)
+    GL11.glEnable(GL11.GL_CULL_FACE)
+  }
+
+  /** Creates the vertex array object.    */
+  fun initHeightmap(detailLevel: Int) {
+    vaoId = BufferUtils.bindVertexArray()
+    heightmap = Heightmap(detailLevel)
+    heightmap.create()
+  }
+
+  fun createBuffers() {
+    BufferUtils.initVertexBuffer(heightmap.vertices)
+    BufferUtils.initVisibilityBuffer()
+  }
+
+  fun start() {
+    shader = Shader("resources/terrain_vs.glsl", "resources/terrain_fs.glsl")
+
+    // Rotates the world space around Y
+    camera.modelMatrix.rotateY(toRadians(-35.0).toFloat())
+    // Sets up the camera and view matrix
+    camera.position.set(0f, 2f, 0f)
+    camera.front.set(0f, 0f, 1f)
+    camera.up.set(0f, 1f, 0f)
+    camera.updateView()
+    // Sets a perspective projection
+    camera.updateProjection(45.0)
+    // Sets light position
+    lightPos.set(0f, 5f, 0f)
+  }
+
+  fun render() {
+    // Starts using the shader program
+    shader.use()
+
+    shader.setMVP(camera)
+    // Sets the light position
+    shader.setVec3("lightPos", lightPos.x, lightPos.y, lightPos.z)
+
+    GL30.glBindVertexArray(vaoId)
+    GL30.glDrawArrays(GL11.GL_TRIANGLES, 0, heightmap.vertices.size)
+    GL30.glBindVertexArray(0)
+    // Stops using the shader program
+    shader.close()
+    // swap the color buffers
+    window.swapBuffers()
+  }
+
+  fun update() {
+    // Poll for window events. The key callback above will only be
+    // invoked during this call.
+    GLFW.glfwPollEvents()
+    GL30.glViewport(0, 0, window.width, window.height)
+    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT)
+
+    val currentFrame = GLFW.glfwGetTime().toFloat()
+    updateRate = currentFrame - lastFrame
+    lastFrame = currentFrame
+    camera.updateView()
+    camera.updateProjection(camera.fov.toDouble())
+  }
 }
 
 class GLFWException(msg: String) : Exception(msg)
+

@@ -7,6 +7,8 @@
  */
 package cl.ravenhill.kterrain.controller
 
+import org.joml.Math
+import org.joml.Matrix4f
 import org.joml.Vector3f
 
 /**
@@ -19,6 +21,30 @@ data class Camera(
   var yaw: Double = 0.0
 ) {
   val position = Vector3f()
+
   val front = Vector3f()
   val up = Vector3f()
+  var fov = 45f
+
+  // Model-View-Projection matrices
+  val projMatrix = Matrix4f()
+  val viewMatrix = Matrix4f()
+  val modelMatrix = Matrix4f()
+
+  fun updateView() {
+    viewMatrix.setLookAt(
+      position.x, position.y, position.z,
+      position.x + front.x, position.y + front.y, position.z + front.z,
+      up.x, up.y, up.z
+    )
+  }
+
+  fun updateProjection(fieldOfView: Double) {
+    projMatrix.setPerspective(
+      Math.toRadians(fieldOfView).toFloat(),
+      GLFWController.window.width.toFloat() / GLFWController.window.height,
+      0.01f,
+      100.0f
+    )
+  }
 }
